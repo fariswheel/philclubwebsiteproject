@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ news.title }} - Philosophy Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .article-header {
+            border-bottom: 1px solid #000;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+        .article-meta {
+            color: #666;
+            font-style: italic;
+        }
+        .article-content {
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+        .article-image {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #000;
+            text-decoration: none;
+            border: 1px solid #000;
+            padding: 8px 15px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="article-container">
+        <a href="{{ url_for('news') }}" class="back-link">← Back to News</a>
+        <div class="article-header">
+            <h1>{{ news.title }}</h1>
+            <div class="article-meta">
+                Published on {{ news.publish_date.strftime('%B %d, %Y') }}
+            </div>
+        </div>
+        
+        {% if news.image %}
+        <img src="{{ url_for('static', filename='uploads/' + news.image) }}" 
+             alt="{{ news.title }}" class="article-image">
+        {% endif %}
+        
+        <div class="article-content">
+            {{ news.content|safe }}
+        </div>
+        
+    </div>
+    
+</body>
+</html>

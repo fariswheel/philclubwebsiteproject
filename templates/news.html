@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News - Philosophy Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .news-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .news-article {
+            border: 1px solid #000;
+            padding: 25px;
+            margin-bottom: 30px;
+            background: #f4f1ea;
+            transition: all 0.3s ease;
+        }
+        .news-article:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .news-article h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+        }
+        .news-meta {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        .pinned-article {
+            border: 2px solid #d4af37; /* Gold border for pinned */
+        }
+    </style>
+</head>
+<body>
+    <div class="back-button-container">
+        <a href="{{ url_for('index') }}" class="back-button">← Back to Home</a>
+    </div>
+    <div class="news-container">
+        <h1>Club News</h1>
+        {% for news in news_items %}
+        <a href="{{ url_for('news_article', news_id=news.id) }}" class="news-link">
+            <div class="news-article {% if news.is_pinned %}pinned-article{% endif %}">
+                <h2>{{ news.title }}</h2>
+                <div class="news-meta">
+                    ç{{ news.publish_date.strftime('%B %d, %Y') }}
+                    {% if news.is_pinned %}(Pinned){% endif %}
+                </div>
+                <p>{{ news.description }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+</body>
+</html>

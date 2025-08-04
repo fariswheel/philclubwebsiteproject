@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Events | Philosophy Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <a href="{{ url_for('index') }}" class="back-button">← Back to Home</a>
+    
+    <header class="event-header">
+        <h1>UPCOMING EVENTS</h1>
+        <p>Join our philosophical discourse</p>
+    </header>
+
+    <div class="event-filters">
+        <button class="filter-btn active" data-filter="all">All Events</button>
+        <button class="filter-btn" data-filter="symposium">Symposia</button>
+        <button class="filter-btn" data-filter="workshop">Workshops</button>
+        <button class="filter-btn" data-filter="reading">Reading Groups</button>
+    </div>
+
+    <div class="event-grid">
+        {% for event in events %}
+        <article class="event-card {{ event.event_type }}" 
+                 data-date="{{ event.start_time.strftime('%Y-%m-%d') }}">
+            <div class="event-date">
+                <span class="event-day">{{ event.start_time.strftime('%d') }}</span>
+                <span class="event-month">{{ event.start_time.strftime('%b') }}</span>
+            </div>
+            
+            <div class="event-content">
+                <h2>{{ event.title }}</h2>
+                <p class="event-meta">
+                    {{ event.start_time.strftime('%A, %B %d @ %I:%M %p') }}
+                    {% if event.location %} | {{ event.location }}{% endif %}
+                </p>
+                <p>{{ event.description }}</p>
+                
+                {% if event.is_recurring %}
+                <span class="recurring-badge">RECURRING</span>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <div class="past-events">
+        <h2>PAST EVENTS ARCHIVE</h2>
+        <div class="archive-list">
+            <!-- Dynamically loaded via JavaScript or pagination -->
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!-- interviews.html update -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interviews</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .interview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .interview-card {
+            border: 1px solid #2c2c2c;
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+        .interview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="back-button-container">
+      <a href="{{ url_for('index') }}" class="back-button">← Back to home</a>
+    </div>      <h1>Philosophy Interviews</h1>
+    <div class="interview-grid">
+        {% for interview in interviews %}
+        <a href="{{ url_for('interview_detail', id=interview.id) }}" class="interview-card">
+            <h3>{{ interview.title }}</h3>
+            <p>{{ interview.description|truncate(150) }}</p>
+        </a>
+        {% else %}
+        <p>No interviews available yet.</p>
+        {% endfor %}
+    </div>
+    
+</body>
+</html>

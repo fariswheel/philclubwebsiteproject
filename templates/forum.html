@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forum</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>  
+    <div class="back-button-container">
+      <a href="{{ url_for('index') }}" class="back-button">← Back to home</a>
+    </div>
+    <div class="new-post-container">
+      <a href="{{ url_for('submit_post') }}" class="new-post-button">+ New Post</a>
+    </div>
+  
+  <h1>Philosophy Forum</h1>
+
+  {% for post in posts %}
+    <div class="forum-card">
+    <div class="post-header">
+        <h3>{{ post.title }}</h3>
+        <span class="post-date">{{ post.publish_date.strftime('%B %d, %Y') }}</span>
+    </div>
+    <p>{{ post.description }}</p>
+    <a href="{{ url_for('post', post_id=post.id) }}">Read more</a>
+    </div>
+
+    {% if not loop.last %}<hr class="post-divider">{% endif %}
+
+  {% endfor %}
+</body>
+</html>

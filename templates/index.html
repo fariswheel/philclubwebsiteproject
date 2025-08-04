@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Philosophy Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Add this to your existing CSS */
+        .archive-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .archive-item {
+            flex: 1 1 45%; /* Makes two items per row with some gap */
+            min-width: 200px;
+            padding: 15px;
+            border: 1px solid #000; /* Black solid border */
+            border-radius: 0; /* Removes rounded corners */
+            transition: all 0.3s ease;
+            color: #000; /* Black text */
+            text-decoration: none; /* No underline */
+            background: #f4f1ea; /* White background */
+        }
+        
+        .archive-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            color: #000; /* Keep black on hover */
+        }
+        
+        .archive-item h3 {
+            color: #000; /* Black for headings */
+            margin-top: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .archive-item {
+                flex: 1 1 100%; /* Full width on small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='uploads/philclublogo.png') }}" 
+             alt="Philosophy Club Logo" 
+             class="logo">
+        <div class="header-text">
+            <h1>PHILOSOPHY CLUB</h1>
+            <p>exploring ideas through discourse</p>
+        </div>
+    </header>
+    
+    <div class="about-section">
+        <h2>About Us</h2>
+        <p>We are a community dedicated to philosophical inquiry and thoughtful discussion.</p>
+    </div>
+
+<div class="carousel-section">
+  <h2>Club Highlights</h2>
+  
+  <div class="slideshow-container">
+    <!-- Event Slide -->
+    <div class="mySlides fade">
+      <div class="slide-content">
+        <h3>Upcoming Event</h3>
+        {% if next_event %}
+          <h4>{{ next_event.title }}</h4>
+          <p>
+            {{ next_event.start_time.strftime('%B %d, %Y @ %I:%M %p') }}<br>
+            {{ next_event.location if next_event.location else "Location TBD" }}
+          </p>
+          <p>{{ next_event.description|truncate(80) }}</p>
+        {% else %}
+          <p>No upcoming events scheduled.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- News Slide 1 -->
+    <div class="mySlides fade">
+      <div class="slide-content">
+        {% if latest_news and latest_news|length >= 1 %}
+          <h3>{{ latest_news[0].title }}</h3>
+          <p>{{ latest_news[0].description|truncate(80) }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- News Slide 2 -->
+    <div class="mySlides fade">
+      <div class="slide-content">
+        {% if latest_news and latest_news|length >= 2 %}
+          <h3>{{ latest_news[1].title }}</h3>
+          <p>{{ latest_news[1].description|truncate(80) }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+  </div>
+
+  <div class="dot-container">
+    <span class="dot" onclick="currentSlide(1)"></span>
+    <span class="dot" onclick="currentSlide(2)"></span>
+    <span class="dot" onclick="currentSlide(3)"></span>
+  </div>
+</div>
+
+    <nav>
+        <div class="tab-container">
+            <button class="tab active" onclick="openTab(event, 'news')">News</button>
+            <button class="tab" onclick="openTab(event, 'events')">Events</button>
+            <button class="tab" onclick="openTab(event, 'blog')">Blog</button>
+            <button class="tab" onclick="openTab(event, 'journal')">Journal</button>
+            <button class="tab" onclick="openTab(event, 'archives')">Archives</button>
+            <button class="tab" onclick="openTab(event, 'contact')">Contact Us</button>
+        </div>
+    </nav>
+
+    <a href="{{ url_for('news') }}" class="news-box-link">
+        <div id="news" class="content active news-box">
+            <h2>News</h2>
+            <p>Latest updates and announcements from our philosophy community.</p>
+        </div>
+    </a>
+
+    <a href="{{ url_for('events') }}" class="events-box-link">
+        <div id="events" class="content">
+            <h2>Events</h2>
+            <p>Monthly gatherings, workshops, and special events.</p>
+        </div>
+    </a>
+
+    <a href="{{ url_for('blog') }}" class="blog-box-link">
+        <div id="blog" class="content">
+            <h2>Blog</h2>
+            <p>A space for informal philosophical discussions and personal reflections.</p>
+        </div>
+    </a>
+
+    <div id="journal" class="content">
+        <h2>Amwaj al-Fikr</h2>
+        <p>Our philosophical journal exploring literature and art.</p>
+    </div>
+
+    <div id="archives" class="content">
+        <h2>Archives</h2>
+        <div class="archive-grid">
+            <a href="{{ url_for('forum') }}" class="archive-item">
+                <h3>Forum</h3>
+                <p>Discussions and interactions in the philosophy community.</p>
+            </a>
+            
+            <a href="{{ url_for('interviews') }}" class="archive-item">
+                <h3>Interviews</h3>
+                <p>Conversations with philosophers, thinkers, and members of our community.</p>
+            </a>
+            
+            <a href="{{ url_for('library') }}" class="archive-item">
+                <h3>Library</h3>
+                <p>A curated collection of philosophical resources and reading materials.</p>
+            </a>
+            
+            <a href="{{ url_for('playlist') }}" class="archive-item">
+                <h3>Playlist</h3>
+                <p>Curated music selections that inspire philosophical thinking and contemplation.</p>
+            </a>
+        </div>
+    </div>
+
+    <div id="contact" class="content">
+        <h2>Contact Us</h2>
+        <p>Connect with the Philosophy Club community through our various channels:</p>
+        <div class="social-links">
+            <a href="mailto:philosophyclub@aus.edu" class="social-link">Email</a>
+            <a href="https://www.youtube.com/@PhilosophyClubAUS" class="social-link">YouTube</a>
+            <a href="https://www.instagram.com/ausphilclub/" class="social-link">Instagram</a>
+            <a href="https://linktr.ee/ausphilclub?fbclid=PAAaYn4_hTtQNGYuXNzScvrIAO-QIgZfHAub-1m_uVi1QtDx3GenGkM6mkDSM" class="social-link">LinkTree</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Philosophy Club</p>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, content, tabs;
+            content = document.getElementsByClassName("content");
+            for (i = 0; i < content.length; i++) {
+                content[i].className = content[i].className.replace(" active", "");
+            }
+            tabs = document.getElementsByClassName("tab");
+            for (i = 0; i < tabs.length; i++) {
+                tabs[i].className = tabs[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    let currentIndex = 0;
+
+    function updateSlides() {
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            if (index === currentIndex) {
+                slide.classList.add('active');
+            }
+            // Position peeking slides
+            if (index < currentIndex) slide.style.left = '10%';
+            if (index > currentIndex) slide.style.left = '90%';
+        });
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        updateSlides();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        updateSlides();
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+});
+// Carousel Functionality
+let slideIndex = 1;
+showSlides(slideIndex);
+
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}    
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";  
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active";
+}
+
+// Auto-advance slides (optional)
+setInterval(() => plusSlides(1), 5000);
+</script>
+</body>
+</html>

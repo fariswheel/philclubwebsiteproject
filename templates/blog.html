@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog - Philosophy Club</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="back-button-container">
+        <a href="{{ url_for('index') }}" class="back-button">← Back to Home</a>
+    </div>
+    
+    <div class="blog-container">
+        <h1>Philosophy Blog</h1>
+        
+        {% for post in posts %}
+        <a href="{{ url_for('blog_post', post_id=post.id) }}" class="blog-post-link">
+            <div class="blog-post {% if post.is_pinned %}pinned-post{% endif %}">
+                <h2>{{ post.title }}</h2>
+                <div class="post-meta">
+                    Published on {{ post.publish_date.strftime('%B %d, %Y') }}
+                    {% if post.is_pinned %}(Pinned){% endif %}
+                </div>
+                <p>{{ post.description }}</p>
+                <div class="comment-count">
+                    {{ post.comments|length }} comments
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</body>
+</html>

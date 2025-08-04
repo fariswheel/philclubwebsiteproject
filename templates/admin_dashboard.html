@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Main Admin Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        /* Tab System */
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .admin-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 5px 5px 0 0;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab:hover {
+            background: #e9e9e9;
+        }
+        
+        .admin-tab.active {
+            background: #fff;
+            border-bottom: 1px solid #fff;
+            font-weight: 500;
+            color: #007bff;
+        }
+        
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Action Buttons */
+        .btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            text-decoration: none;
+            margin-right: 5px;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: #ffc107;
+            color: black;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        /* Form Styles */
+        .admin-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .admin-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .admin-form input,
+        .admin-form textarea,
+        .admin-form select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .admin-form textarea {
+            min-height: 100px;
+        }
+        
+        .submit-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Interview Styles */
+        .interview-list {
+            margin-top: 20px;
+        }
+        
+        .interview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .video-preview {
+            flex: 0 0 120px;
+        }
+        
+        .interview-actions {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <h1>Admin Dashboard</h1>
+    
+    <!-- Tab Navigation -->
+    <div class="admin-tabs">
+        <button class="admin-tab" data-tab="forum">Forum</button>
+        <button class="admin-tab" data-tab="interviews">Interviews</button>
+        <button class="admin-tab" data-tab="news">News</button>
+        <button class="admin-tab" data-tab="blog">Blog</button>
+        <button class="admin-tab" data-tab="events">Events</button>
+        <button class="admin-tab" data-tab="journal">Journal</button>
+        <button class="admin-tab" data-tab="archives">Archives</button>
+        <button class="admin-tab" data-tab="contact">Contact</button>
+    </div>
+
+    <!-- Tab Contents Container -->
+    <div class="tab-contents">
+        <!-- Forum Posts Tab -->
+        <div class="tab-content" id="forum">
+            <h2>Forum Posts</h2>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td>{{ post.id }}</td>
+                        <td>{{ post.title }}</td>
+                        <td>{{ post.publish_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-view" target="_blank">View</a>
+                            <a href="{{ url_for('delete_post', post_id=post.id) }}" 
+                               class="btn btn-delete" 
+                               onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Interviews Tab -->
+        <div class="tab-content" id="interviews">
+            <h2>Interview Videos</h2>
+    
+            <form method="POST" action="{{ url_for('admin_dashboard') }}" class="admin-form" id="interview-form">
+                <input type="hidden" name="interview_id" id="interview-id" value="">
+        
+                <div class="form-group">
+                    <label>Title*</label>
+                    <input type="text" name="title" id="interview-title" required>
+                </div>
+        
+                <div class="form-group">
+                    <label>Description*</label>
+                    <textarea name="description" id="interview-description" rows="4" required></textarea>
+                </div>
+        
+                <div class="form-group">
+                    <label>YouTube URL*</label>
+                    <input type="url" name="youtube_url" id="youtube-url" required placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+        
+                <button type="submit" class="submit-btn">Save Interview</button>
+                <button type="button" id="interview-cancel-btn" class="btn btn-delete" 
+                style="display:none;" onclick="resetInterviewForm()">Cancel</button>
+            </form>
+
+            <div class="interview-list">
+                <h3>Existing Interviews</h3>
+                {% for interview in interviews %}
+                <div class="interview-item" data-id="{{ interview.id }}">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="video-preview">
+                            <iframe width="120" height="68" 
+                                    src="https://www.youtube.com/embed/{{ interview.youtube_id }}" 
+                                    frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 5px 0;">{{ interview.title }}</h4>
+                            <p style="margin: 0; color: #666; font-size: 0.9em;">{{ interview.description[:100] }}{% if interview.description|length > 100 %}...{% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="interview-actions">
+                        <button onclick="editInterview('{{ interview.id }}', `{{ interview.title }}`, `{{ interview.description }}`, '{{ interview.youtube_url }}')" 
+                                style="padding: 5px 10px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer;">Edit</button>
+                        <button onclick="deleteInterview('{{ interview.id }}')" 
+                                style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- News Tab -->
+<div class="tab-content" id="news">
+    <h2>News Management</h2>
+    
+    <!-- Add/Edit News Form -->
+    <form method="POST" action="{{ url_for('admin_news') }}" enctype="multipart/form-data" class="admin-form">
+        <input type="hidden" name="news_id" id="news-id" value="">
+        <div class="form-group">
+            <label>Title*</label>
+            <input type="text" name="title" id="news-title" required>
+        </div>
+        <div class="form-group">
+            <label>Short Description*</label>
+            <textarea name="description" id="news-description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Content*</label>
+            <textarea name="content" id="news-content" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Featured Image</label>
+            <input type="file" name="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_pinned" id="news-pinned"> Pin this article (show at top)
+            </label>
+        </div>
+        <button type="submit" id="news-submit-btn" class="submit-btn">Add News Article</button>
+        <button type="button" id="news-cancel-btn" class="btn btn-delete" style="display:none;" onclick="resetNewsForm()">Cancel Edit</button>
+    </form>
+
+    <!-- Existing News Articles -->
+    <div class="news-list" style="margin-top: 30px;">
+        <h3>Existing News Articles</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for news in news_items %}
+                <tr>
+                    <td>
+                        <strong>{{ news.title }}</strong>
+                        {% if news.is_pinned %}<span style="color: #d4af37;">★</span>{% endif %}
+                    </td>
+                    <td>{{ news.publish_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{% if news.is_pinned %}Pinned{% else %}Normal{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('news_article', news_id=news.id) }}" class="btn btn-view" target="_blank">View</a>
+                        <button class="btn btn-edit" 
+                                data-id="{{ news.id }}"
+                                data-title="{{ news.title }}"
+                                data-description="{{ news.description }}"
+                                data-content="{{ news.content }}"
+                                data-pinned="{{ 'true' if news.is_pinned else 'false' }}"
+                                onclick="editNews(this)">Edit</button>
+                        <a href="{{ url_for('delete_news', news_id=news.id) }}" 
+                           class="btn btn-delete"
+                           onclick="return confirm('Permanently delete this news article?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- In the tab contents section -->
+<div class="tab-content" id="blog">
+    <h2>Blog Management</h2>
+    
+    <!-- Add Blog Post Form -->
+    <form method="POST" action="{{ url_for('admin_add_blog') }}" enctype="multipart/form-data" class="admin-form">
+        <input type="hidden" name="blog_id" id="blog-id" value="">
+        <div class="form-group">
+            <label>Title*</label>
+            <input type="text" name="title" id="blog-title" required>
+        </div>
+        <div class="form-group">
+            <label>Short Description*</label>
+            <textarea name="description" id="blog-description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Content*</label>
+            <textarea name="content" id="blog-content" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Featured Image</label>
+            <input type="file" name="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_pinned" id="blog-pinned"> Pin this post
+            </label>
+        </div>
+        <button type="submit" id="blog-submit-btn" class="submit-btn">Add Blog Post</button>
+    </form>
+
+    <!-- Existing Blog Posts -->
+    <div class="blog-list" style="margin-top: 30px;">
+        <h3>Blog Posts</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Comments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in blog_posts %}
+                <tr>
+                    <td>
+                        <strong>{{ post.title }}</strong>
+                        {% if post.is_pinned %}<span style="color: #d4af37;">★</span>{% endif %}
+                    </td>
+                    <td>{{ post.publish_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ post.comments|length }}</td>
+                    <td>
+                        <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-view" target="_blank">View</a>
+                        <button class="btn btn-edit" 
+                            data-post-id="{{ post.id }}"
+                            data-title="{{ post.title }}"
+                            data-description="{{ post.description }}"
+                            data-content="{{ post.content }}"
+                            data-pinned="{{ post.is_pinned|lower }}"
+                            onclick="editBlogPost(this)">Edit</button>
+                        <a href="{{ url_for('admin_delete_blog', post_id=post.id) }}" 
+                           class="btn btn-delete"
+                           onclick="return confirm('Permanently delete this blog post?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Blog Comments Management -->
+    <div class="comments-management" style="margin-top: 40px;">
+        <h3>Recent Comments</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Post</th>
+                    <th>Comment</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in recent_comments %}
+                <tr class="{% if comment.is_removed %}removed-comment{% endif %}">
+                    <td>{{ comment.post.title }}</td>
+                    <td>
+                        {% if comment.is_removed %}
+                        <span class="removed-text">[Removed] {{ comment.removal_reason }}</span>
+                        {% else %}
+                        {{ comment.content|truncate(50) }}
+                        {% endif %}
+                    </td>
+                    <td>{{ comment.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if not comment.is_removed %}
+                        <button class="btn btn-delete" 
+                                onclick="removeComment('{{ comment.id }}')">Remove</button>
+                        {% else %}
+                        <span class="removed-badge">Removed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Events Tab -->
+<div class="tab-content" id="events">
+    <h2>Event Management</h2>
+    
+    <form method="POST" action="{{ url_for('add_event') }}" class="admin-form" id="event-form">
+        <input type="hidden" name="event_id" id="event-id" value="">
+        
+        <div class="form-group">
+            <label>Event Title*</label>
+            <input type="text" name="title" id="event-title" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Description*</label>
+            <textarea name="description" id="event-description" rows="4" required></textarea>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div class="form-group">
+                <label>Event Type*</label>
+                <select name="event_type" id="event-type" required>
+                    <option value="symposium">Symposium</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="reading">Reading Group</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Start Time*</label>
+                <input type="datetime-local" name="start_time" id="event-start" required>
+            </div>
+            
+            <div class="form-group">
+                <label>End Time</label>
+                <input type="datetime-local" name="end_time" id="event-end">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" id="event-location">
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_recurring" id="event-recurring"> Recurring Event
+            </label>
+        </div>
+        
+        <button type="submit" class="submit-btn" id="event-submit-btn">Add Event</button>
+        <button type="button" class="btn btn-delete" id="event-cancel-btn" style="display:none;" onclick="resetEventForm()">Cancel</button>
+    </form>
+
+    <div class="event-list" style="margin-top: 30px;">
+        <h3>Upcoming Events</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr data-id="{{ event.id }}">
+                    <td>{{ event.title }}</td>
+                    <td>{{ event.event_type|title }}</td>
+                    <td>{{ event.start_time.strftime('%b %d, %Y @ %I:%M %p') }}</td>
+                    <td>
+                        <button class="btn btn-edit edit-event-btn"
+                            data-id="{{ event.id }}"
+                            data-title="{{ event.title }}"
+                            data-description="{{ event.description }}"
+                            data-type="{{ event.event_type }}"
+                            data-start="{{ event.start_time.strftime('%Y-%m-%dT%H:%M') }}"
+                            data-end="{{ event.end_time.strftime('%Y-%m-%dT%H:%M') if event.end_time else '' }}"
+                            data-location="{{ event.location if event.location else '' }}"
+                            data-recurring="{{ 'true' if event.is_recurring else 'false' }}">
+                            Edit
+                        </button>
+                        <button class="btn btn-delete" onclick="deleteEvent('{{ event.id }}')">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+        
+        <!-- Journal Tab -->
+        <div class="tab-content" id="journal">
+            <h2>Journal</h2>
+            <p>Journal management coming soon</p>
+        </div>
+        
+        <!-- Archives Tab (with Library) -->
+        <div class="tab-content" id="archives">
+            <h2>Library Archives</h2>
+            
+            <form method="POST" action="{{ url_for('upload_book') }}" enctype="multipart/form-data" class="admin-form">
+                <h3>Add New Book</h3>
+                <label>Title*</label>
+                <input type="text" name="title" required>
+                
+                <label>Author*</label>
+                <input type="text" name="author" required>
+                
+                <label>Description</label>
+                <textarea name="description" rows="3"></textarea>
+                
+                <label>Category</label>
+                <select name="category">
+                    <option value="epistemology">Epistemology</option>
+                    <option value="ethics">Ethics</option>
+                    <option value="metaphysics">Metaphysics</option>
+                </select>
+                
+                <label>PDF File*</label>
+                <input type="file" name="file" accept=".pdf" required>
+                
+                <label>Cover Image</label>
+                <input type="file" name="cover" accept="image/*">
+                
+                <button type="submit" class="submit-btn">Add to Library</button>
+            </form>
+
+            <h3>Existing Books</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>
+                            <a href="{{ url_for('static', filename='library/pdfs/' + book.file_path) }}" 
+                               class="btn btn-view" target="_blank">View</a>
+                            <a href="{{ url_for('delete_book', book_id=book.id) }}" 
+                               class="btn btn-delete"
+                               onclick="return confirm('Permanently delete this book?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Contact Tab -->
+        <div class="tab-content" id="contact">
+            <h2>Contact</h2>
+            <p>Contact management coming soon</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.admin-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        });
+
+        // Interview functions
+
+        // Only apply to interview form
+        document.getElementById('interview-form')?.addEventListener('submit', function(e) {
+            const urlInput = document.getElementById('youtube-url');
+            const url = urlInput.value;
+    
+            if (!url.match(/youtube\.com\/watch\?v=|youtu\.be\//)) {
+                e.preventDefault();
+                alert('Please use a valid YouTube URL format:\n\nhttps://www.youtube.com/watch?v=ID\nor\nhttps://youtu.be/ID');
+                urlInput.focus();
+            }
+        });
+
+        function deleteInterview(id) {
+            if (confirm('Are you sure you want to delete this interview?')) {
+                fetch('/admin/delete_interview/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.querySelector(`.interview-item[data-id="${id}"]`).remove();
+                    } else {
+                        alert('Error deleting interview');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting interview');
+                });
+            }
+        }
+
+        function editInterview(id, title, description, youtubeUrl) {
+            document.getElementById('interview-id').value = id;
+            document.getElementById('interview-title').value = title;
+            document.getElementById('interview-description').value = description;
+            document.getElementById('youtube-url').value = youtubeUrl;
+            document.getElementById('interview-submit-btn').textContent = 'Update Interview';
+            document.getElementById('interview-cancel-btn').style.display = 'inline-block';
+        }
+
+        function resetInterviewForm() {
+            document.getElementById('interview-id').value = '';
+            document.getElementById('interview-title').value = '';
+            document.getElementById('interview-description').value = '';
+            document.getElementById('youtube-url').value = '';
+            document.getElementById('interview-submit-btn').textContent = 'Add Interview';
+            document.getElementById('interview-cancel-btn').style.display = 'none';
+        }
+
+        // News functions
+        function resetNewsForm() {
+            document.getElementById('news-id').value = '';
+            document.getElementById('news-title').value = '';
+            document.getElementById('news-description').value = '';
+            document.getElementById('news-content').value = '';
+            document.getElementById('news-pinned').checked = false;
+            document.getElementById('news-submit-btn').textContent = 'Add News Article';
+            document.getElementById('news-cancel-btn').style.display = 'none';
+        }
+        function editNews(button) {
+            const newsId = button.getAttribute('data-id');
+            const newsTitle = button.getAttribute('data-title');
+            const newsDescription = button.getAttribute('data-description');
+            const newsContent = button.getAttribute('data-content');
+            const isPinned = button.getAttribute('data-pinned') === 'true';
+    
+            document.getElementById('news-id').value = newsId;
+            document.getElementById('news-title').value = newsTitle;
+            document.getElementById('news-description').value = newsDescription;
+            document.getElementById('news-content').value = newsContent;
+            document.getElementById('news-pinned').checked = isPinned;
+            document.getElementById('news-submit-btn').textContent = 'Update News Article';
+            document.getElementById('news-cancel-btn').style.display = 'inline-block';
+            document.getElementById('news').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Event Management Functions
+function editEvent(id, title, description, type, start, end, location, isRecurring) {
+    document.getElementById('event-id').value = id;
+    document.getElementById('event-title').value = title;
+    document.getElementById('event-description').value = description;
+    document.getElementById('event-type').value = type;
+    document.getElementById('event-start').value = start;
+    document.getElementById('event-end').value = end;
+    document.getElementById('event-location').value = location;
+    document.getElementById('event-recurring').checked = isRecurring === 'true';
+    
+    document.getElementById('event-submit-btn').textContent = 'Update Event';
+    document.getElementById('event-cancel-btn').style.display = 'inline-block';
+    document.getElementById('events').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetEventForm() {
+    document.getElementById('event-id').value = '';
+    document.getElementById('event-title').value = '';
+    document.getElementById('event-description').value = '';
+    document.getElementById('event-type').value = 'symposium';
+    document.getElementById('event-start').value = '';
+    document.getElementById('event-end').value = '';
+    document.getElementById('event-location').value = '';
+    document.getElementById('event-recurring').checked = false;
+    
+    document.getElementById('event-submit-btn').textContent = 'Add Event';
+    document.getElementById('event-cancel-btn').style.display = 'none';
+}
+
+function deleteEvent(id) {
+    if (confirm('Permanently delete this event?')) {
+        fetch('/admin/delete_event/' + id, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                document.querySelector(`tr[data-id="${id}"]`).remove();
+            } else {
+                alert('Error deleting event');
+            }
+        });
+    }
+}
+
+// Only apply to interview form
+document.getElementById('interview-form')?.addEventListener('submit', function(e) {
+    const urlInput = document.getElementById('youtube-url');
+    const url = urlInput.value;
+    
+    if (!url.match(/youtube\.com\/watch\?v=|youtu\.be\//)) {
+        e.preventDefault();
+        alert('Please use a valid YouTube URL format:\n\nhttps://www.youtube.com/watch?v=ID\nor\nhttps://youtu.be/ID');
+        urlInput.focus();
+    }
+});
+
+document.querySelectorAll('.edit-event-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        editEvent(
+            this.dataset.id,
+            this.dataset.title,
+            this.dataset.description,
+            this.dataset.type,
+            this.dataset.start,
+            this.dataset.end || null,
+            this.dataset.location || null,
+            this.dataset.recurring === 'true'
+        );
+    });
+});
+
+function editBlogPost(buttonElement) {
+    const id = buttonElement.getAttribute('data-post-id');
+    const title = JSON.parse(buttonElement.getAttribute('data-title'));
+    const description = JSON.parse(buttonElement.getAttribute('data-description'));
+    const content = JSON.parse(buttonElement.getAttribute('data-content'));
+    const isPinned = buttonElement.getAttribute('data-pinned') === 'true';
+
+    document.getElementById('blog-id').value = id;
+    document.getElementById('blog-title').value = title;
+    document.getElementById('blog-description').value = description;
+    document.getElementById('blog-content').value = content;
+    document.getElementById('blog-pinned').checked = isPinned;
+    
+    document.getElementById('blog-submit-btn').textContent = 'Update Blog Post';
+    document.getElementById('blog').scrollIntoView({ behavior: 'smooth' });
+}
+
+function removeComment(commentId) {
+    if (confirm('Remove this comment?')) {
+        fetch('/admin/remove_comment/' + commentId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                reason: prompt('Reason for removal (optional):') || 'Moderator removed'
+            })
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+    </script>
+</body>
+</html>
