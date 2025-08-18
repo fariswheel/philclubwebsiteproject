@@ -116,6 +116,16 @@ class BlogPost(db.Model):
     is_pinned = db.Column(db.Boolean, default=False)
     comments = db.relationship('BlogComment', backref='post', lazy=True, cascade='all, delete-orphan')
 
+class JournalPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    image = db.Column(db.String(200))
+    publish_date = db.Column(db.DateTime, default=datetime.utcnow)
+    is_pinned = db.Column(db.Boolean, default=False)
+    category = db.Column(db.String(50))  # e.g., "literature", "art", "philosophy"
+
 class BlogComment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
@@ -134,13 +144,15 @@ def index():
     latest_news = News.query.order_by(News.publish_date.desc()).limit(2).all()
     blog_posts = BlogPost.query.order_by(BlogPost.publish_date.desc()).all()
     recent_comments = BlogComment.query.order_by(BlogComment.created_at.desc()).limit(10).all()
+    journal_posts = JournalPost.query.order_by(JournalPost.publish_date.desc()).all()
 
     return render_template("index.html",
                         latest_post=latest_post,
                         next_event=next_event,
                         latest_news=latest_news,
                         blog_posts=blog_posts,
-                        recent_comments=recent_comments)
+                        recent_comments=recent_comments,
+                        journal_posts=journal_posts)
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_dashboard():
@@ -167,6 +179,7 @@ def admin_dashboard():
     interviews = Interview.query.order_by(Interview.id).all()
     news_items = News.query.order_by(News.publish_date.desc()).all()
     blog_posts = BlogPost.query.order_by(BlogPost.publish_date.desc()).all()
+    journal_posts = JournalPost.query.order_by(JournalPost.publish_date.desc()).all()
     
     return render_template('admin_dashboard.html',
                         posts=posts,
@@ -174,7 +187,8 @@ def admin_dashboard():
                         interviews=interviews,
                         news_items=news_items,
                         events=all_events,
-                        blog_posts=blog_posts)
+                        blog_posts=blog_posts,
+                        journal_posts=journal_posts)
 
 @app.route('/admin/delete_interview/<int:id>', methods=['POST'])
 def delete_interview(id):
@@ -519,6 +533,52 @@ def admin_remove_comment(comment_id):
     db.session.commit()
     return '', 204
 
+# Journal Admin Routes
+@app.route('/admin/add_journal', methods=['POST'])
+def admin_add_journal():
+    if request.method == 'POST':
+        image_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '' and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image_filename = filename
+        
+        journal_id = request.form.get('journal_id')
+        if journal_id:  # Update existing
+            post = JournalPost.query.get(journal_id)
+            if post:
+                post.title = request.form['title']
+                post.description = request.form['description']
+                post.content = request.form['content']
+                post.is_pinned = 'is_pinned' in request.form
+                post.category = request.form.get('category')
+                if image_filename:
+                    post.image = image_filename
+        else:  # Create new
+            post = JournalPost(
+                title=request.form['title'],
+                description=request.form['description'],
+                content=request.form['content'],
+                is_pinned='is_pinned' in request.form,
+                category=request.form.get('category'),
+                image=image_filename
+            )
+            db.session.add(post)
+        
+        db.session.commit()
+        flash('Journal post saved successfully!', 'success')
+    return redirect(url_for('admin_dashboard', _anchor='journal'))
+
+@app.route('/admin/delete_journal/<int:post_id>')
+def admin_delete_journal(post_id):
+    post = JournalPost.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Journal post deleted', 'success')
+    return redirect(url_for('admin_dashboard', _anchor='journal'))
+
 # Blog Frontend Routes
 # ===== BLOG ROUTES =====
 @app.route("/blog")
@@ -558,6 +618,17 @@ def add_blog_comment():
         db.session.commit()
         flash('Comment added successfully!', 'success')
     return redirect(url_for('blog_post', post_id=post_id))
+
+# Journal Routes
+@app.route("/journal")
+def journal():
+    posts = JournalPost.query.order_by(JournalPost.is_pinned.desc(), JournalPost.publish_date.desc()).all()
+    return render_template("journal.html", posts=posts)
+
+@app.route("/journal/<int:post_id>")
+def journal_post(post_id):
+    post = JournalPost.query.get_or_404(post_id)
+    return render_template("journal_post.html", post=post)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=True, use_reloader=False)
