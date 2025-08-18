@@ -544,11 +544,81 @@
     </div>
 </div>
         
-        <!-- Journal Tab -->
-        <div class="tab-content" id="journal">
-            <h2>Journal</h2>
-            <p>Journal management coming soon</p>
+       <!-- Journal Tab -->
+<div class="tab-content" id="journal">
+    <h2>Journal Management</h2>
+    
+    <!-- Add/Edit Form -->
+    <form method="POST" action="{{ url_for('admin_add_journal') }}" enctype="multipart/form-data" class="admin-form">
+        <input type="hidden" name="journal_id" id="journal-id" value="">
+        <div class="form-group">
+            <label>Title*</label>
+            <input type="text" name="title" id="journal-title" required>
         </div>
+        <div class="form-group">
+            <label>Description*</label>
+            <textarea name="description" id="journal-description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Content*</label>
+            <textarea name="content" id="journal-content" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category" id="journal-category">
+                <option value="literature">Literature</option>
+                <option value="art">Art</option>
+                <option value="philosophy">Philosophy</option>
+                <option value="culture">Culture</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Featured Image</label>
+            <input type="file" name="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_pinned" id="journal-pinned"> Pin this post
+            </label>
+        </div>
+        <button type="submit" class="submit-btn">Save Journal Post</button>
+    </form>
+
+    <!-- Journal Posts Table -->
+    <div style="margin-top: 30px;">
+        <h3>Existing Journal Posts</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in journal_posts %}
+                <tr>
+                    <td>{{ post.id }}</td>
+                    <td>{{ post.title }}</td>
+                    <td>{{ post.category|title }}</td>
+                    <td>{{ post.publish_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('journal_post', post_id=post.id) }}" 
+                           class="btn btn-view" target="_blank">View</a>
+                        <button onclick="editJournalPost('{{ post.id }}')" 
+                                class="btn btn-edit">Edit</button>
+                        <a href="{{ url_for('admin_delete_journal', post_id=post.id) }}" 
+                           class="btn btn-delete"
+                           onclick="return confirm('Delete this journal post?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
         
         <!-- Archives Tab (with Library) -->
         <div class="tab-content" id="archives">
@@ -641,7 +711,6 @@
 
         // Interview functions
 
-        // Only apply to interview form
         document.getElementById('interview-form')?.addEventListener('submit', function(e) {
             const urlInput = document.getElementById('youtube-url');
             const url = urlInput.value;
@@ -825,6 +894,30 @@ function removeComment(commentId) {
         });
     }
 }
+
+function editJournalPost(id, title, description, content, category, isPinned) {
+    document.getElementById('journal-id').value = id;
+    document.getElementById('journal-title').value = title;
+    document.getElementById('journal-description').value = description;
+    document.getElementById('journal-content').value = content;
+    document.getElementById('journal-category').value = category;
+    document.getElementById('journal-pinned').checked = (isPinned === 'true');
+    document.getElementById('journal-submit-btn').textContent = 'Update Journal Post';
+    document.getElementById('journal').scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleEditJournalPost(button) {
+    document.getElementById('journal-id').value = button.dataset.postId;
+    document.getElementById('journal-title').value = button.dataset.postTitle;
+    document.getElementById('journal-description').value = button.dataset.postDescription;
+    document.getElementById('journal-content').value = button.dataset.postContent;
+    document.getElementById('journal-category').value = button.dataset.postCategory;
+    document.getElementById('journal-pinned').checked = button.dataset.postPinned === 'true';
+    
+    document.getElementById('journal-submit-btn').textContent = 'Update Journal Post';
+    document.getElementById('journal').scrollIntoView({ behavior: 'smooth' });
+}
+
     </script>
 </body>
 </html>
