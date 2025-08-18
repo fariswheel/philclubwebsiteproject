@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ post.title }} - Amwaj al-Fikr</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="back-button-container">
+        <a href="{{ url_for('journal') }}" class="back-button">← Back to Journal</a>
+    </div>
+    
+    <div class="journal-post-container">
+        <article>
+            <h1>{{ post.title }} <span class="post-category">{{ post.category|title }}</span></h1>
+            <div class="post-meta">
+                Published on {{ post.publish_date.strftime('%B %d, %Y') }}
+            </div>
+            
+            {% if post.image %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="{{ post.title }}" class="post-image">
+            {% endif %}
+            
+            <div class="post-content">
+                {{ post.content }}
+            </div>
+        </article>
+    </div>
+</body>
+</html>
