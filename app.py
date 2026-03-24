@@ -12,10 +12,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///forum.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-# ===== SECURITY IMPROVEMENT =====
-app.config['SECRET_KEY'] = 'secretpassword'  # Required for flash messages
-# ===== END ADDITION =====
+app.config['SECRET_KEY'] = 'secretpassword'  
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
