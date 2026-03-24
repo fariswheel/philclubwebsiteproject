@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 # ===== SECURITY IMPROVEMENT =====
-app.config['SECRET_KEY'] = 'your-secret-key-here'  # Required for flash messages
+app.config['SECRET_KEY'] = 'secretpassword'  # Required for flash messages
 # ===== END ADDITION =====
 
 db = SQLAlchemy(app)
@@ -70,11 +70,11 @@ class Post(db.Model):
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=False)  # Make sure this exists
+    description = db.Column(db.Text, nullable=False) 
     content = db.Column(db.Text, nullable=False)
     publish_date = db.Column(db.DateTime, default=datetime.utcnow)
     is_pinned = db.Column(db.Boolean, default=False)
-    image = db.Column(db.String(200))  # Optional image path
+    image = db.Column(db.String(200))  
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -92,9 +92,9 @@ class LibraryBook(db.Model):
     title = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(100))
     description = db.Column(db.Text)
-    category = db.Column(db.String(50))  # epistemology, ethics, etc.
-    file_path = db.Column(db.String(200))  # PDFs in static/library/
-    cover_image = db.Column(db.String(200))  # Optional
+    category = db.Column(db.String(50))  
+    file_path = db.Column(db.String(200))
+    cover_image = db.Column(db.String(200)) 
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Comment(db.Model):
@@ -102,8 +102,8 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    is_removed = db.Column(db.Boolean, default=False)  # New field
-    removal_reason = db.Column(db.Text)  # New field
+    is_removed = db.Column(db.Boolean, default=False)  
+    removal_reason = db.Column(db.Text)  
     post = db.relationship('Post', back_populates='comments')
 
 class BlogPost(db.Model):
@@ -123,7 +123,7 @@ class BlogComment(db.Model):
     is_removed = db.Column(db.Boolean, default=False)
     removal_reason = db.Column(db.Text)
     post_id = db.Column(db.Integer, db.ForeignKey('blog_post.id'), nullable=False)
-    author = db.Column(db.String(100))  # Optional: add if you want to track who commented
+    author = db.Column(db.String(100))  
 
 @app.route("/")
 def index():
@@ -153,8 +153,6 @@ def admin_dashboard():
                 flash('Invalid YouTube URL', 'error')
                 return redirect(url_for('admin_dashboard'))
     
-    # GET request - show dashboard
-
     all_events = Event.query.order_by(Event.start_time.desc()).all()  
 
     posts = Post.query.with_entities(
@@ -181,7 +179,7 @@ def delete_interview(id):
     interview = Interview.query.get_or_404(id)
     db.session.delete(interview)
     db.session.commit()
-    return '', 204  # Return empty success response
+    return '', 204  
 
 @app.route("/forum")
 def forum():
@@ -218,7 +216,7 @@ def submit_post():
 
 @app.route('/admin/create_post', methods=['POST'])
 def create_post():
-    image_filename = None  # Initialize as None
+    image_filename = None  
     if 'image' in request.files:
         file = request.files['image']
         if file.filename != '' and allowed_file(file.filename):
@@ -333,16 +331,13 @@ def upload_book():
         return redirect(request.url)
     
     if file and allowed_file(file.filename):
-        # Ensure library directories exist
         os.makedirs(os.path.join(app.static_folder, 'library/pdfs'), exist_ok=True)
         os.makedirs(os.path.join(app.static_folder, 'library/covers'), exist_ok=True)
         
-        # Save PDF
         pdf_filename = secure_filename(file.filename)
         pdf_path = os.path.join('library/pdfs', pdf_filename)
         file.save(os.path.join(app.static_folder, pdf_path))
         
-        # Handle cover image if provided
         cover_filename = None
         if 'cover' in request.files:
             cover = request.files['cover']
@@ -439,11 +434,11 @@ def add_event():
     if request.method == 'POST':
         event_id = request.form.get('event_id')
         
-        if event_id:  # Update existing
+        if event_id:  
             event = Event.query.get(event_id)
             if not event:
                 abort(404)
-        else:  # Create new
+        else:  
             event = Event()
         
         event.title = request.form['title']
@@ -478,7 +473,7 @@ def admin_add_blog():
                 image_filename = filename
         
         blog_id = request.form.get('blog_id')
-        if blog_id:  # Update existing post
+        if blog_id: 
             post = BlogPost.query.get(blog_id)
             if post:
                 post.title = request.form['title']
@@ -489,7 +484,7 @@ def admin_add_blog():
                     post.image = image_filename
                 db.session.commit()
                 flash('Blog post updated successfully!', 'success')
-        else:  # Create new post
+        else:  
             post = BlogPost(
                 title=request.form['title'],
                 description=request.form['description'],
@@ -519,8 +514,6 @@ def admin_remove_comment(comment_id):
     db.session.commit()
     return '', 204
 
-# Blog Frontend Routes
-# ===== BLOG ROUTES =====
 @app.route("/blog")
 def blog():
     posts = BlogPost.query.order_by(BlogPost.is_pinned.desc(), BlogPost.publish_date.desc()).all()
